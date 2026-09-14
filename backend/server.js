@@ -18,10 +18,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Static uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -65,14 +63,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection for Vercel
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected successfully');
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error.message);
-  });
+// MongoDB
+if (process.env.MONGO_URI) {
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch(err => console.error('MongoDB connection error:', err.message));
+} else {
+  console.error('MONGO_URI is missing!');
+}
 
 module.exports = app;
